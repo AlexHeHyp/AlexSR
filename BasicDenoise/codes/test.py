@@ -11,10 +11,20 @@ from data import create_dataset, create_dataloader
 from models import create_model
 from utils.logger import PrintLogger
 
-# options
-parser = argparse.ArgumentParser()
-parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
-opt = option.parse(parser.parse_args().opt, is_train=False)
+command_mode = True
+if command_mode == True:
+    # options
+    print('\n********** config option outside and run python command **********\n')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+    opt = option.parse(parser.parse_args().opt, is_train=False)
+else: #run for python file
+    # config json in code for debug
+    print('\n********** config option in code and debug/run python file **********\n')
+    opt_cfg_json = '/home/heyp/code/BasicDenoise/codes/options/test/test_abs.json'
+    opt = option.parse(opt_cfg_json, is_train=False)
+
+
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
 opt = option.dict_to_nonedict(opt)
 

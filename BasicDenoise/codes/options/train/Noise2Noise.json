@@ -1,21 +1,21 @@
 {
-  "name": "SRResNetx4_DIV2K_BN" //  please remove "debug_" during formal training
+  "name": "Noise2Noise_DIV2K" //  please remove "debug_" during formal training
   , "use_tb_logger": true
   , "model":"sr"
-  , "scale": 4
+  , "scale": 1
   , "gpu_ids": [1]
 
   , "datasets": {
     "train": {
       "name": "DIV2K"
       , "mode": "LRHR"
-      , "dataroot_HR": "../../data/DIV2K_train_HR_sub"
-      , "dataroot_LR": "../../data/DIV2k_train_HR_sub_bicLRx4"
+      , "dataroot_HR": "../../data/DIV2k_train_HR_sub_bicLRx4_s20"
+      , "dataroot_LR": "../../data/DIV2k_train_HR_sub_bicLRx4_s30"
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
-      , "batch_size": 120
-      , "HR_size": 128
+      , "batch_size": 512
+      , "HR_size": 32
       , "use_flip": true
       , "use_rot": true
     }
@@ -23,7 +23,7 @@
       "name": "val_set5"
       , "mode": "LRHR"
       , "dataroot_HR": "../../data/Set5_mod"
-      , "dataroot_LR": "../../data/Set5_mod_bicLRx4"
+      , "dataroot_LR": "../../data/Set5_mod_s20"
     }
   }
 
@@ -33,11 +33,11 @@
   }
 
   , "network_G": {
-    "which_model_G": "sr_resnet"
-    , "norm_type": "batch"
+    "which_model_G": "dn_cnn"
+    , "norm_type": null
     , "mode": "CNA"
-    , "nf": 64   // feature map number
-    , "nb": 16   // block number
+    , "nf": 64
+    , "nb": 8
     , "in_nc": 3
     , "out_nc": 3
     , "group": 1
@@ -45,20 +45,20 @@
 
   , "train": {
     "manual_seed": 0
-    , "niter": 1e4
+    , "niter": 1e5
 
-    , "lr_G": 2e-4
+    , "lr_G": 1e-3
     , "lr_scheme": "MultiStepLR"
-    , "lr_steps": [2000, 4000, 6000, 8000]
+    , "lr_steps": [2000, 4000, 8000, 16000]
     , "lr_gamma": 0.5
 
     , "pixel_criterion": "l1"
     , "pixel_weight": 1.0
-    , "val_freq": 5e1
+    , "val_freq": 2e2
   }
 
   , "logger": {
-    "print_freq": 10
-    , "save_checkpoint_freq": 2e2
+    "print_freq": 2e1
+    , "save_checkpoint_freq": 2e3
   }
 }

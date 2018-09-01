@@ -14,12 +14,27 @@ from data import create_dataloader, create_dataset
 from models import create_model
 from utils.logger import Logger, PrintLogger
 
+import numpy as np
+import cv2
 
 def main():
-    # options
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
-    opt = option.parse(parser.parse_args().opt, is_train=True)
+    command_mode = True
+    if command_mode == True:
+        # options
+        print('\n********** config option outside and run python command **********\n')
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+        opt = option.parse(parser.parse_args().opt, is_train=True)
+    else:  # run for python file
+        # config json in code for debug
+        print('\n********** config option in code and debug/run python file **********\n')
+        opt_cfg_json = '/home/heyp/code/BasicDenoise/codes/options/train/DnCNN_Paper.json'
+        opt = option.parse(opt_cfg_json, is_train=True)
+
+  #  # options
+  #  parser = argparse.ArgumentParser()
+  #  parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
+  #  opt = option.parse(parser.parse_args().opt, is_train=True)
 
     util.mkdir_and_rename(opt['path']['experiments_root'])  # rename old experiments if exists
     util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root' and \
@@ -64,12 +79,17 @@ def main():
 
     current_step = 0
     start_time = time.time()
+
+
     print('---------- Start training -------------')
     for epoch in range(total_epoches):
         for i, train_data in enumerate(train_loader):
             current_step += 1
             if current_step > total_iters:
                 break
+
+            #print('epoch, i:', epoch, i)
+            #continue  #
 
             # training
             model.feed_data(train_data)
@@ -116,8 +136,21 @@ def main():
                     sr_img = util.tensor2img_np(visuals['SR'])  # uint8
                     gt_img = util.tensor2img_np(visuals['HR'])  # uint8
 
+                    #for residual mode (model's result is sr_img, but it is residual image,
+                    #    so the real sr image need lr image + residual image)
+                    if val_dataset_opt['generate_residual'] is not None:
+                        sr_img_f = util.tensor2img_np(visuals['SR'], np.float)  # float
+                        lr_img_f = util.tensor2img_np(visuals['LR'], np.float)  # float
+                        sr_img_f = lr_img_f + sr_img_f
+                        sr_img = ((sr_img_f * 255.0).round()).astype(np.uint8)
+                     #   print('show sr image')
+                     #   cv2.imshow('sr_img', sr_img)
+                     #   cv2.waitKey(200)
+
+
                     # Save SR images for reference
                     save_img_path = os.path.join(img_dir, '%s_%s.png' % (img_name, current_step))
+                    #print('save image as:', save_img_path)
                     util.save_img_np(sr_img.squeeze(), save_img_path)
 
                     # calculate PSNR

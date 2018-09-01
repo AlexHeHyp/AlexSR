@@ -16,6 +16,10 @@ def parse(opt_path, is_train=True):
             line = line.split('//')[0] + '\n'
             json_str += line
     opt = json.loads(json_str, object_pairs_hook=OrderedDict)
+#   for k, v in opt.items():
+#       print(k, v)
+
+    opt = dict_to_nonedict(opt)  #add by Alex He
 
     opt['timestamp'] = get_timestamp()
     opt['is_train'] = is_train
@@ -26,6 +30,9 @@ def parse(opt_path, is_train=True):
         phase = phase.split('_')[0]
         dataset['phase'] = phase
         dataset['scale'] = scale
+        if opt['sigma'] is not None:
+            dataset['sigma'] = opt['sigma']
+
         is_lmdb = False
         if 'dataroot_HR' in dataset and dataset['dataroot_HR'] is not None:
             dataset['dataroot_HR'] = os.path.expanduser(dataset['dataroot_HR'])
@@ -66,6 +73,7 @@ def parse(opt_path, is_train=True):
 
     # network
     opt['network_G']['scale'] = scale
+
     return opt
 
 

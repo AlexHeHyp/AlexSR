@@ -19,7 +19,7 @@ class SRModel(BaseModel):
         self.load()
 
         if self.is_train:
-            self.netG.train()
+            self.netG.train() #set as training mode
 
             # loss
             loss_type = train_opt['pixel_criterion']
@@ -38,9 +38,10 @@ class SRModel(BaseModel):
             for k, v in self.netG.named_parameters():  # can optimize for a part of the model
                 if v.requires_grad:
                     optim_params.append(v)
+                    print('params [%s] will optimize.' % k)  #!!
                 else:
                     print('WARNING: params [%s] will not optimize.' % k)
-            # print('optim_params----', optim_params)
+
 
             self.optimizer_G = torch.optim.Adam(optim_params,
                                                 lr=train_opt['lr_G'], weight_decay=wd_G)
@@ -69,9 +70,13 @@ class SRModel(BaseModel):
 
     def optimize_parameters(self, step):
         self.optimizer_G.zero_grad()
+
         self.fake_H = self.netG(self.var_L)
+
+        #need modify the loss function for DnCNN
         l_pix = self.l_pix_w * self.cri_pix(self.fake_H, self.real_H)
         l_pix.backward()
+
         self.optimizer_G.step()
 
         # set log

@@ -7,8 +7,11 @@ import cv2
 
 
 def main():
-    GT_dir = '/home/heyp/data/DIV2K_train_HR'
-    save_GT_dir = '/home/heyp/data/DIV2K_train_HR_sub'
+    GT_dir = '/home/heyp/data/DnCNN/Train400'
+
+    #need create save_GT_dir at first(before run)
+    save_GT_dir = '/home/heyp/data/DnCNN/Train400_p40_s8'
+
     n_thread = 20
 
     print('Parent process %s.' % os.getpid())
@@ -36,8 +39,8 @@ def main():
 
 
 def worker(GT_paths, save_GT_dir):
-    crop_sz = 480
-    step = 240
+    crop_sz = 40
+    step = 8
     thres_sz = 48
 
     for GT_path in GT_paths:

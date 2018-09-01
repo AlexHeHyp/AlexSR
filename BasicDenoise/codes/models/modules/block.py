@@ -30,7 +30,7 @@ def norm(norm_type, nc):
     if norm_type == 'batch':
         layer = nn.BatchNorm2d(nc, affine=True)
     elif norm_type == 'instance':
-        layer = nn.InstanceNorm2d(nc, affine=False)
+        layer = nn.InstanceNorm2d(nc, affine=True) #affine=True
     else:
         raise NotImplementedError('normalization layer [%s] is not found' % norm_type)
     return layer

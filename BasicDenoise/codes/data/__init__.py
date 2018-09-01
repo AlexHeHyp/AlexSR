@@ -21,10 +21,11 @@ def create_dataset(dataset_opt):
         from data.LR_dataset import LRDataset as D
     elif mode == 'LRHR':
         from data.LRHR_dataset import LRHRDataset as D
-    elif mode == 'LRHRseg_bg':
-        from data.LRHR_seg_bg_dataset import LRHRSeg_BG_Dataset as D
+    elif mode == 'NoiseClean':
+        from data.NoiseClean_dataset import NoiseCleanDataset as D
     else:
         raise NotImplementedError("Dataset [%s] is not recognized." % mode)
+
     dataset = D(dataset_opt)
     print('Dataset [%s - %s] is created.' % (dataset.__class__.__name__, dataset_opt['name']))
     return dataset

@@ -4,7 +4,6 @@ import torch.nn as nn
 from torch.nn import init
 
 import models.modules.architecture as arch
-#import models.modules.sft_arch as sft_arch
 
 ####################
 # initialize
@@ -88,8 +87,10 @@ def define_G(opt):
             nb=opt['nb'], upscale=opt['scale'], norm_type=opt['norm_type'], mode=opt['mode'],\
             upsample_mode='pixelshuffle')
 
-    elif which_model == 'sft_arch':
-        netG = sft_arch.SFT_Net()
+    elif which_model == 'dn_cnn':
+        netG = arch.DnCNN(in_nc=opt['in_nc'], out_nc=opt['out_nc'], nf=opt['nf'], \
+            nb=opt['nb'], norm_type=opt['norm_type'])
+
 
     # if which_model != 'sr_resnet':  # need to investigate, the original is better?
     #     init_weights(netG, init_type='orthogonal')
@@ -101,40 +102,3 @@ def define_G(opt):
         assert torch.cuda.is_available()
         netG = nn.DataParallel(netG)
     return netG
-
-
-# Discriminator
-def define_D(opt):
-    gpu_ids = opt['gpu_ids']
-    opt = opt['network_D']
-    which_model = opt['which_model_D']
-
-    if which_model == 'discriminaotr_vgg_128':
-        netD = arch.Discriminaotr_VGG_128(in_nc=opt['in_nc'], base_nf=opt['nf'], \
-            norm_type=opt['norm_type'], mode=opt['mode'], act_type=opt['act_type'])
-
-    elif which_model == 'dis_acd':
-        netD = sft_arch.ACD_VGG_BN_96()
-    else:
-        raise NotImplementedError('Discriminator model [%s] is not recognized' % which_model)
-
-    init_weights(netD, init_type='kaiming', scale=1)
-    if gpu_ids:
-        netD = nn.DataParallel(netD)
-    return netD
-
-
-def define_F(opt, use_bn=False):
-    gpu_ids = opt['gpu_ids']
-    device = torch.device('cuda' if gpu_ids else 'cpu')
-    # pytorch pretrained VGG19-54, before ReLU.
-    if use_bn:
-        feature_layer = 49
-    else:
-        feature_layer = 34
-    netF = arch.VGGFeatureExtractor(feature_layer=feature_layer, use_bn=use_bn, \
-        use_input_norm=True, device=device)
-    if gpu_ids:
-        netF = nn.DataParallel(netF)
-    netF.eval()  # No need to train
-    return netF
