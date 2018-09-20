@@ -11,18 +11,14 @@ from data import create_dataset, create_dataloader
 from models import create_model
 from utils.logger import PrintLogger
 
-command_mode = True
-if command_mode == True:
-    # options
-    print('\n********** config option outside and run python command **********\n')
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
-    opt = option.parse(parser.parse_args().opt, is_train=False)
-else: #run for python file
-    # config json in code for debug
-    print('\n********** config option in code and debug/run python file **********\n')
-    opt_cfg_json = '/home/heyp/code/BasicDenoise/codes/options/test/test_abs.json'
-    opt = option.parse(opt_cfg_json, is_train=False)
+import cv2
+
+
+# options
+print('\n********** config option outside and run python command **********\n')
+parser = argparse.ArgumentParser()
+parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+opt = option.parse(parser.parse_args().opt, is_train=False)
 
 
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
@@ -43,6 +39,7 @@ for phase, dataset_opt in sorted(opt['datasets'].items()):
 # Create model
 model = create_model(opt)
 
+
 for test_loader in test_loaders:
     test_set_name = test_loader.dataset.opt['name']
     print('Testing [%s]...' % test_set_name)
@@ -56,6 +53,8 @@ for test_loader in test_loaders:
     test_results['psnr_y'] = []
     test_results['ssim_y'] = []
 
+    bShowTestData = True
+    test_num = 0
     for data in test_loader:
         need_HR = False if test_loader.dataset.opt['dataroot_HR'] is None else True
 
@@ -64,6 +63,10 @@ for test_loader in test_loaders:
         img_name = os.path.splitext(os.path.basename(img_path))[0]
 
         model.test()  # test
+
+        test_num = test_num + 1
+        if test_num > 1000:
+            break
         visuals = model.get_current_visuals(need_HR=need_HR)
 
         sr_img = util.tensor2img_np(visuals['SR'])  # uint8
@@ -90,6 +93,19 @@ for test_loader in test_loaders:
                     .format(img_name, psnr, ssim, psnr_y, ssim_y))
             else:
                 print('{:20s} - PSNR: {:.4f} dB; SSIM: {:.4f}.'.format(img_name, psnr, ssim))
+
+            if True == bShowTestData:
+                lr_img = util.tensor2img_np(visuals['LR'])  # uint8
+                cv2.namedWindow('test_lr_img', 0)
+                cv2.imshow('test_lr_img', lr_img)
+                cv2.moveWindow('test_lr_img', 80, 40)
+                cv2.namedWindow('test_sr_img', 0)
+                cv2.imshow('test_sr_img', sr_img)
+                cv2.moveWindow('test_sr_img', 500, 40)
+                cv2.namedWindow('test_gt_img', 0)
+                cv2.imshow('test_gt_img', gt_img)
+                cv2.moveWindow('test_gt_img', 920, 40)
+                cv2.waitKey(100)
         else:
             print(img_name)
 

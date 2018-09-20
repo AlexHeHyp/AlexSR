@@ -1,0 +1,64 @@
+{
+  "name": "DenoiseResNet" // "debug_"
+  , "use_tb_logger": true
+  , "model":"sr"
+  , "scale": 1
+  , "gpu_ids": [1]
+
+  , "datasets": {
+    "train": {
+      "name": "DIV2K"
+      , "mode": "LRHR"
+      , "dataroot_HR": "/home/heyp/data/DenoiseGAN/DIV2K_train_HR_p480_s240"
+      , "dataroot_LR": "/home/heyp/data/DenoiseGAN/DIV2K_train_HR_sigma25_p480_s240"
+      , "subset_file": null
+      , "use_shuffle": true
+      , "n_workers": 8
+      , "batch_size": 16
+      , "HR_size": 128
+      , "use_flip": true
+      , "use_rot": true
+    }
+    , "val": {
+      "name": "Set5"
+      , "mode": "LRHR"
+      , "dataroot_HR": "/home/heyp/data/Set5"
+      , "dataroot_LR": "/home/heyp/data/DenoiseGAN/Set5_sigma25"
+    }
+  }
+
+  , "path": {
+    "root":  "/home/heyp/code/BasicDenoise/"
+    , "pretrain_model_G": null
+  }
+
+  , "network_G": {
+    "which_model_G": "denoise_resnet"
+    , "norm_type": null
+    , "mode": "CNA"
+    , "nf": 64   // feature map number
+    , "nb": 16   // block number
+    , "in_nc": 3
+    , "out_nc": 3
+    , "group": 1
+  }
+
+  , "train": {
+    "manual_seed": 0
+    , "niter": 5e5
+
+    , "lr_G": 1e-4
+    , "lr_scheme": "MultiStepLR"
+    , "lr_steps": [50000, 100000, 200000, 300000]
+    , "lr_gamma": 0.5
+
+    , "pixel_criterion": "l1"
+    , "pixel_weight": 1.0
+    , "val_freq": 5e3
+  }
+
+  , "logger": {
+    "print_freq": 200
+    , "save_checkpoint_freq": 5e3
+  }
+}

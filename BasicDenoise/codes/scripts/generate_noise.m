@@ -1,10 +1,10 @@
 function generate_noise()
 
 %% set parameters
-input_path = '/home/heyp/data/DnCNN/Train400_p40_s8';
+input_path = '/home/heyp/data/DIV2K_valid_HR';
 
-sigma = 50
-save_noise_path = '/home/heyp/data/DnCNN/Train400_p40_s8_sigma50';
+sigma = 25
+save_noise_path = '/home/heyp/data/DenoiseGAN/DIV2K_valid_HR_sigma25';
 
 if exist('save_noise_path', 'var')
     if exist(save_noise_path, 'dir')
@@ -50,8 +50,8 @@ end
 
 % additive Gaussian noise
 function input = AddGaussianNoise(label, noiseSigma)
-randn('seed', 0);
-noise = noiseSigma/255.*randn(size(label));
+% randn('seed', 0);  %can't fixed seed
+noise = noiseSigma/255.*randn(size(label)); % randn mean is 0.5
 input = im2single(label) + single(noise);
 input = im2uint8(input);
 end

@@ -1,0 +1,68 @@
+{
+  "name": "DnCNN_BNResAdd_l2_sig25_p40_s6_normal2_finetune115k" // "debug_"
+  , "use_tb_logger": true
+  , "model": "denoise"
+  , "scale": 1
+  , "gpu_ids": [5]
+
+  , "datasets": {
+    "train": {
+      "name": "Train400"
+      , "mode": "LRHR"
+      , "dataroot_HR": "/home/heyp/data/DnCNN/Train/Train400_p40_s6"
+      , "dataroot_LR": "/home/heyp/data/DnCNN/Train/Train400_sigma25_p40_s6"
+      ,"subset_file": null
+      , "use_shuffle": true
+      , "n_workers": 8
+      , "batch_size": 128   //128
+      , "HR_size": 40       //40
+      , "use_flip": true
+      , "use_rot": true
+    }
+    , "val": {
+      "name": "Set12"
+      , "mode": "LRHR"
+      , "dataroot_HR": "/home/heyp/data/Set12"
+      , "dataroot_LR": "/home/heyp/data/DnCNN/Test/Set12_sigma25"
+    }
+  }
+
+  , "path": {
+    "root": "/home/heyp/code/BasicDenoise/"
+    , "pretrain_model_G": "/home/heyp/code/BasicDenoise/experiments/pretrained_models/DnCNN_BNResAdd_l2_sig25_p40_s6_normal2_115000_G.pth"
+  }
+
+  , "network_G": {
+    "which_model_G": "dn_cnn"
+    , "norm_type": "batch"   //null, "batch", "instance"
+    , "mode": "CNA"
+    , "nf": 64
+    , "nb": 15
+    , "in_nc": 1
+    , "out_nc": 1
+    , "group": 1
+  }
+
+  , "train": {
+    "manual_seed": 0
+    , "niter": 1e6
+
+    , "lr_G": 1e-5
+    , "lr_scheme": "MultiStepLR"
+    , "lr_steps": [10000]
+    , "lr_gamma": 0.1
+
+    , "solver": "adam"  //"adam", "sgd"
+    , "momentum": 0.9
+    , "weight_decay_G": 0.0   //0.0001
+
+    , "pixel_criterion": "l2"
+    , "pixel_weight": 1.0
+    , "val_freq": 2e2
+  }
+
+  , "logger": {
+    "print_freq": 50
+    , "save_checkpoint_freq": 5e3
+  }
+}

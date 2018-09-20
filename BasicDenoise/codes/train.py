@@ -18,23 +18,13 @@ import numpy as np
 import cv2
 
 def main():
-    command_mode = True
-    if command_mode == True:
-        # options
-        print('\n********** config option outside and run python command **********\n')
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
-        opt = option.parse(parser.parse_args().opt, is_train=True)
-    else:  # run for python file
-        # config json in code for debug
-        print('\n********** config option in code and debug/run python file **********\n')
-        opt_cfg_json = '/home/heyp/code/BasicDenoise/codes/options/train/DnCNN_Paper.json'
-        opt = option.parse(opt_cfg_json, is_train=True)
+    bShowTrainData = False  #config by yourself
 
-  #  # options
-  #  parser = argparse.ArgumentParser()
-  #  parser.add_argument('-opt', type=str, required=True, help='Path to option JSON file.')
-  #  opt = option.parse(parser.parse_args().opt, is_train=True)
+    # options
+    print('\n********** config option outside and run python command **********\n')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
+    opt = option.parse(parser.parse_args().opt, is_train=True)
 
     util.mkdir_and_rename(opt['path']['experiments_root'])  # rename old experiments if exists
     util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root' and \
@@ -56,13 +46,14 @@ def main():
     # create train and val dataloader
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
-            train_set = create_dataset(dataset_opt)
+            train_set = create_dataset(dataset_opt)  #??
             train_size = int(math.ceil(len(train_set) / dataset_opt['batch_size']))
             print('Number of train images: {:,d}, iters: {:,d}'.format(len(train_set), train_size))
             total_iters = int(opt['train']['niter'])
             total_epoches = int(math.ceil(total_iters / train_size))
             print('Total epoches needed: {:d} for iters {:,d}'.format(total_epoches, total_iters))
-            train_loader = create_dataloader(train_set, dataset_opt)
+            train_loader = create_dataloader(train_set, dataset_opt)  #??
+
         elif phase == 'val':
             val_dataset_opt = dataset_opt
             val_set = create_dataset(dataset_opt)
@@ -72,28 +63,33 @@ def main():
             raise NotImplementedError("Phase [%s] is not recognized." % phase)
     assert train_loader is not None
 
-    # Create model
+    # Create model  # !!!!!!!!
     model = create_model(opt)
+
     # create logger
     logger = Logger(opt)
 
     current_step = 0
     start_time = time.time()
 
-
     print('---------- Start training -------------')
     for epoch in range(total_epoches):
-        for i, train_data in enumerate(train_loader):
+        print_train_psnr = 0
+        for i, train_data in enumerate(train_loader):  #??
             current_step += 1
             if current_step > total_iters:
                 break
 
-            #print('epoch, i:', epoch, i)
-            #continue  #
-
-            # training
+            # training  # !!!!!!!!
             model.feed_data(train_data)
             model.optimize_parameters(current_step)
+
+            # sum psnr
+            logs = model.get_current_log()
+            if opt['train']['pixel_criterion'] == 'l2':
+                for k, v in logs.items():
+                    if k == 'l_pix':
+                        print_train_psnr += 20 * math.log10(1.0 / math.sqrt(v))
 
             time_elapsed = time.time() - start_time
             start_time = time.time()
@@ -116,6 +112,33 @@ def main():
                 print('Saving the model at the end of iter %d' % (current_step))
                 model.save(current_step)
 
+            # show train data
+            if True == bShowTrainData and current_step % opt['logger']['print_freq'] == 0:
+                #printf the calculate average PSNR
+                if print_train_psnr > 0:
+                    sta_freq = opt['logger']['print_freq']
+                    print('--average psnr for %d iters is: %.2f' % (sta_freq, print_train_psnr/sta_freq))
+                print_train_psnr = 0
+
+                visuals = model.get_current_visuals()
+                lr_img_s = util.tensor2img_np(visuals['LR'])  # uint8
+                sr_img_s = util.tensor2img_np(visuals['SR'])  # uint8
+                gt_img_s = util.tensor2img_np(visuals['HR'])  # uint8
+                lr_img = cv2.resize(np.copy(lr_img_s), (320, 320), interpolation=cv2.INTER_CUBIC)
+                sr_img = cv2.resize(np.copy(sr_img_s), (320, 320), interpolation=cv2.INTER_CUBIC)
+                gt_img = cv2.resize(np.copy(gt_img_s), (320, 320), interpolation=cv2.INTER_CUBIC)
+
+                cv2.namedWindow('in_t', 0)
+                cv2.moveWindow('in_t', 80, 40)
+                cv2.imshow('in_t', lr_img)
+                cv2.namedWindow('gt_t', 0)
+                cv2.moveWindow('gt_t', 500, 40)
+                cv2.imshow('gt_t', gt_img)
+                cv2.namedWindow('out_t', 0)
+                cv2.moveWindow('out_t', 920, 40)
+                cv2.imshow('out_t', sr_img)
+                cv2.waitKey(200)
+
             # validation
             if current_step % opt['train']['val_freq'] == 0:
                 print('---------- validation -------------')
@@ -125,39 +148,56 @@ def main():
                 idx = 0
                 for val_data in val_loader:
                     idx += 1
-                    img_name = os.path.splitext(os.path.basename(val_data['LR_path'][0]))[0]
-                    img_dir = os.path.join(opt['path']['val_images'], img_name)
-                    util.mkdir(img_dir)
 
-                    model.feed_data(val_data)
-                    model.test()
+                    model.feed_data(val_data)  #!!
+                    model.test()   #!!
 
                     visuals = model.get_current_visuals()
                     sr_img = util.tensor2img_np(visuals['SR'])  # uint8
                     gt_img = util.tensor2img_np(visuals['HR'])  # uint8
-
-                    #for residual mode (model's result is sr_img, but it is residual image,
-                    #    so the real sr image need lr image + residual image)
-                    if val_dataset_opt['generate_residual'] is not None:
-                        sr_img_f = util.tensor2img_np(visuals['SR'], np.float)  # float
-                        lr_img_f = util.tensor2img_np(visuals['LR'], np.float)  # float
-                        sr_img_f = lr_img_f + sr_img_f
-                        sr_img = ((sr_img_f * 255.0).round()).astype(np.uint8)
-                     #   print('show sr image')
-                     #   cv2.imshow('sr_img', sr_img)
-                     #   cv2.waitKey(200)
-
-
-                    # Save SR images for reference
-                    save_img_path = os.path.join(img_dir, '%s_%s.png' % (img_name, current_step))
-                    #print('save image as:', save_img_path)
-                    util.save_img_np(sr_img.squeeze(), save_img_path)
 
                     # calculate PSNR
                     crop_size = opt['scale'] + 2
                     cropped_sr_img = sr_img[crop_size:-crop_size, crop_size:-crop_size, :]
                     cropped_gt_img = gt_img[crop_size:-crop_size, crop_size:-crop_size, :]
                     avg_psnr += util.psnr(cropped_sr_img, cropped_gt_img)
+
+                    # Save SR images for reference
+                    save_val_freq = opt['train']['val_freq']
+                    if current_step > 5000 and save_val_freq < 10000:
+                        save_val_freq = (10000//opt['train']['val_freq']) * opt['train']['val_freq']
+
+                    if current_step % save_val_freq == 0 and idx < 21: #not save too much
+                        img_name = os.path.splitext(os.path.basename(val_data['LR_path'][0]))[0]
+                        img_dir = os.path.join(opt['path']['val_images'], img_name)
+                        util.mkdir(img_dir)
+                        save_img_path = os.path.join(img_dir, '%s_%s.png' % (img_name, current_step))
+                        util.save_img_np(sr_img.squeeze(), save_img_path)
+
+                    if idx > 200:  #not need validate too much
+                        break
+
+                    #show validation
+                    if True == bShowTrainData and idx < 21:  # 2:
+                        lr_img = util.tensor2img_np(visuals['LR'])  # uint8
+
+                        # show
+                        lr_img = cv2.resize(np.copy(lr_img), (320, 320), interpolation=cv2.INTER_CUBIC)
+                        gt_img = cv2.resize(np.copy(gt_img), (320, 320), interpolation=cv2.INTER_CUBIC)
+                        sr_img = cv2.resize(np.copy(sr_img), (320, 320), interpolation=cv2.INTER_CUBIC)
+
+                        if 1 == idx:
+                            cv2.destroyAllWindows()
+                        cv2.namedWindow('in_v', 0)
+                        cv2.moveWindow('in_v', 80, 40)
+                        cv2.imshow('in_v', lr_img)
+                        cv2.namedWindow('gt_v', 0)
+                        cv2.moveWindow('gt_v', 500, 40)
+                        cv2.imshow('gt_v', gt_img)
+                        cv2.namedWindow('out_v', 0)
+                        cv2.moveWindow('out_v', 920, 40)
+                        cv2.imshow('out_v', sr_img)
+                        cv2.waitKey(500)
 
                 avg_psnr = avg_psnr / idx
                 time_elapsed = time.time() - start_time
@@ -171,7 +211,7 @@ def main():
                 logger.print_format_results('val', print_rlt)
                 print('-----------------------------------')
 
-            # update learning rate
+            # update learning rate  # !!!!!!!!
             model.update_learning_rate()
 
     print('Saving the final model.')

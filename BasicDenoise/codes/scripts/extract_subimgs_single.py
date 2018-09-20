@@ -5,14 +5,19 @@ import time
 import numpy as np
 import cv2
 
+import util as DataUtil
 
-def main():
-    GT_dir = '/home/heyp/data/DnCNN/Train400'
+def main():   
+    crop_sz = 80  #40
+    step = 20  #40
+    augmentation = False  #True
+
+    GT_dir = '/home/heyp/data/DnCNN/Train/Train400_sigma25'
 
     #need create save_GT_dir at first(before run)
-    save_GT_dir = '/home/heyp/data/DnCNN/Train400_p40_s8'
+    save_GT_dir = '/home/heyp/data/DnCNN/Train/Train400_sigma25_p80_s20'
 
-    n_thread = 20
+    n_thread = 20  #8
 
     print('Parent process %s.' % os.getpid())
     start = time.time()
@@ -30,7 +35,11 @@ def main():
     sub_lists = chunkify(all_files, n_thread)
     # call workers
     for i in range(n_thread):
-        p.apply_async(worker, args=(sub_lists[i], save_GT_dir))
+        if False == augmentation:
+            p.apply_async(worker, args=(sub_lists[i], crop_sz, step, save_GT_dir))
+        else:
+            p.apply_async(worker_augm, args=(sub_lists[i], crop_sz, step, save_GT_dir))
+
     print('Waiting for all subprocesses done...')
     p.close()
     p.join()
@@ -38,10 +47,8 @@ def main():
     print('All subprocesses done. Using time {} sec.'.format(end - start))
 
 
-def worker(GT_paths, save_GT_dir):
-    crop_sz = 40
-    step = 8
-    thres_sz = 48
+def worker(GT_paths, crop_sz, step, save_GT_dir):
+    thres_sz = 48  #8
 
     for GT_path in GT_paths:
         base_name = os.path.basename(GT_path)
@@ -76,9 +83,56 @@ def worker(GT_paths, save_GT_dir):
                 # var = np.var(crop_img / 255)
                 # if var > 0.008:
                 #     print(index_str, var)
-                cv2.imwrite(os.path.join(save_GT_dir, base_name.replace('.png', \
-                    '_s'+index_str+'.png')), crop_img, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+                cv2.imwrite(os.path.join(save_GT_dir, \
+                     base_name.replace('.png', '_s'+index_str+'.png')), \
+                     crop_img, [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
+def worker_augm(GT_paths, crop_sz, step, save_GT_dir):
+    thres_sz = 8
+
+    for GT_path in GT_paths:
+        base_name = os.path.basename(GT_path)
+        print(base_name, os.getpid())
+        img_GT = cv2.imread(GT_path, cv2.IMREAD_UNCHANGED)
+
+        n_channels = len(img_GT.shape)
+        if n_channels == 2:
+            h, w = img_GT.shape
+        elif n_channels == 3:
+            h, w, c = img_GT.shape
+        else:
+            raise ValueError('Wrong image shape - {}'.format(n_channels))
+
+        h_space = np.arange(0, h - crop_sz + 1, step)
+        if h - (h_space[-1] + crop_sz) > thres_sz:
+            h_space = np.append(h_space, h - crop_sz)
+        w_space = np.arange(0, w - crop_sz + 1, step)
+        if w - (w_space[-1] + crop_sz) > thres_sz:
+            w_space = np.append(w_space, w - crop_sz)
+
+        mode_cnt = 8
+        index = 0
+
+        for x in h_space:
+            for y in w_space:
+                index += 1
+                if n_channels == 2:
+                    crop_img = img_GT[x:x + crop_sz, y:y + crop_sz]
+                else:
+                    crop_img = img_GT[x:x + crop_sz, y:y + crop_sz, :]
+
+                for m in range(mode_cnt):
+                    crop_mod_img = DataUtil.data_augmentation(crop_img, m)
+                    crop_mod_img = np.ascontiguousarray(crop_mod_img)
+
+                    index_str = '{:03d}_m{:d}'.format(index, m)
+
+                    # var = np.var(crop_img / 255)
+                    # if var > 0.008:
+                    #     print(index_str, var)
+                    cv2.imwrite(os.path.join(save_GT_dir, \
+                         base_name.replace('.png', '_s'+index_str+'.png')), \
+                         crop_mod_img, [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
 if __name__ == '__main__':
     main()

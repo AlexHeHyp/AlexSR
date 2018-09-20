@@ -48,7 +48,7 @@ class LRHRDataset(data.Dataset):
 
         # get HR image
         HR_path = self.paths_HR[index]
-        img_HR = util.read_img(self.HR_env, HR_path)
+        img_HR = util.read_img(self.HR_env, HR_path) #cvt to [0,1]
         # modcrop in validation phase
         if self.opt['phase'] != 'train':
             img_HR = util.modcrop(img_HR, scale)
@@ -103,8 +103,7 @@ class LRHRDataset(data.Dataset):
             img_HR = img_HR[rnd_h_HR:rnd_h_HR + HR_size, rnd_w_HR:rnd_w_HR + HR_size, :]
 
             # augmentation - flip, rotate
-            img_LR, img_HR = util.augment([img_LR, img_HR], self.opt['use_flip'], \
-                self.opt['use_rot'])
+            img_LR, img_HR = util.augment([img_LR, img_HR], self.opt['use_flip'], self.opt['use_rot'])
 
         # channel conversion
         if self.opt['color']:
@@ -114,6 +113,7 @@ class LRHRDataset(data.Dataset):
         if img_HR.shape[2] == 3:
             img_HR = img_HR[:, :, [2, 1, 0]]
             img_LR = img_LR[:, :, [2, 1, 0]]
+
         img_HR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_HR, (2, 0, 1)))).float()
         img_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_LR, (2, 0, 1)))).float()
 

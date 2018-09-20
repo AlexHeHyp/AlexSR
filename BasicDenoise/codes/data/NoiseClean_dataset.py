@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.utils.data as data
 import data.util as util
-import data.GlobalVar as GV
+#import data.GlobalVar as GV
 import skimage
 
 class NoiseCleanDataset(data.Dataset):
@@ -22,10 +22,6 @@ class NoiseCleanDataset(data.Dataset):
         self.paths_HR = None
         self.LR_env = None  # environment for lmdb
         self.HR_env = None
-
-        self.bGenerateResidual = False
-        if opt['generate_residual'] is not None:
-            self.bGenerateResidual = opt['generate_residual']
 
         # read image list from subset list txt
         if opt['subset_file'] is not None and opt['phase'] == 'train':
@@ -45,15 +41,15 @@ class NoiseCleanDataset(data.Dataset):
                 len(self.paths_LR), len(self.paths_HR))
 
         self.random_scale_list = [1]
-        #print('~~~~~~init NoiseCleanDataset~~~~~~')
 
     def __getitem__(self, index):
         HR_path, LR_path = None, None
         scale = self.opt['scale']
-        sigma = self.opt['sigma']
+        sigma = 25.0
+        if self.opt['sigma'] is not None:
+            sigma = self.opt['sigma']
+
         HR_size = self.opt['HR_size']
-        bGenerateResidual = self.bGenerateResidual;
-        #print('~~~~~~getitem index~~~~~~', index)
 
         # get HR image
         HR_path = self.paths_HR[index]
@@ -87,42 +83,32 @@ class NoiseCleanDataset(data.Dataset):
                     img_HR = cv2.resize(np.copy(img_HR), (W_s, H_s), interpolation=cv2.INTER_LINEAR)
 
                 # force to 3 channels
-                # if img_HR.ndim == 2:
-                #    img_HR = cv2.cvtColor(img_HR, cv2.COLOR_GRAY2BGR)
+                if self.opt['color'] and img_HR.ndim == 2:
+                   img_HR = cv2.cvtColor(img_HR, cv2.COLOR_GRAY2BGR)
 
-            H, W, _ = img_HR.shape
+            H, W, C = img_HR.shape
 
-            # !! just add gaussian noise
+            # !! just add gaussian noise----need convert from uint8 to float32 at first
             if sigma is not None and sigma > 0:
-                seedV = random.randint(1, 10000)
-                img_LR = skimage.util.random_noise(img_HR, mode='gaussian', seed=seedV, clip=True, mean=0, var=sigma)
+                noise_sigma = sigma / 255.
+                if True: #method 1 to add noise (sao yan)
+                    #img_Noise = torch.FloatTensor(img_HR.size()).normal_(mean=0, std=noise_sigma)
+                    img_Noise = torch.FloatTensor(H*W*C).normal_(mean=0, std=noise_sigma)
+                    img_Noise = img_Noise.numpy()
+                    img_Noise.shape = img_HR.shape
+
+                    img_LR = img_HR + img_Noise  #the value will out [0,1]
+                else: #method 2 to add noise
+                    seedV = random.randint(1, 1000000)
+                    img_LR = skimage.util.random_noise(img_HR, mode='gaussian',
+                                  seed=seedV, clip=True, mean=0, var=noise_sigma)
             else:
                 # using matlab imresize
                 img_LR = util.imresize_np(img_HR, 1 / scale, True)
 
-            #if img_LR.ndim == 2:
-            #    img_LR = np.expand_dims(img_LR, axis=2)
-            #    img_HR = np.expand_dims(img_HR, axis=2)
-
-        #print('~~~~~~aft add noise index~~~~~~', index)
-        if True == self.opt['show_dataset_img']:
-            bShow_train = GV.get_t_value()
-            if self.opt['phase'] == 'train' and False==bShow_train and 0==index%1000:
-                GV.set_t_value(True)
-                cv2.namedWindow('im_lr_t', 0)
-                cv2.imshow('im_lr_t', img_LR)
-                cv2.moveWindow('im_lr_t', 800, 40)
-                cv2.waitKey(3*1000)
-                cv2.destroyWindow('im_lr_t')
-
-            bShow_val = GV.get_v_value()
-            if self.opt['phase'] != 'train' and False==bShow_val and 0==index:
-                GV.set_v_value(True)
-                cv2.namedWindow('im_lr_v', 0)
-                cv2.imshow('im_lr_v', img_LR)
-                cv2.moveWindow('im_lr_v', 1200, 40)
-                cv2.waitKey(3*1000)
-                cv2.destroyWindow('im_lr_v')
+            if img_LR.ndim == 2:
+                img_LR = np.expand_dims(img_LR, axis=2)
+                img_HR = np.expand_dims(img_HR, axis=2)
 
         if self.opt['phase'] == 'train':
             # if the image size is too small
@@ -132,8 +118,8 @@ class NoiseCleanDataset(data.Dataset):
                     np.copy(img_HR), (HR_size, HR_size), interpolation=cv2.INTER_LINEAR)
                 # using matlab imresize
                 img_LR = util.imresize_np(img_HR, 1 / scale, True)
-                #if img_LR.ndim == 2:
-                #    img_LR = np.expand_dims(img_LR, axis=2)
+                if img_LR.ndim == 2:
+                    img_LR = np.expand_dims(img_LR, axis=2)
             H, W, C = img_LR.shape
 
             LR_size = HR_size // scale
@@ -151,23 +137,16 @@ class NoiseCleanDataset(data.Dataset):
                 self.opt['use_rot'])
 
         # channel conversion
-        # if self.opt['color']:
-        #    img_LR, img_HR = util.channel_convert(C, self.opt['color'], [img_LR, img_HR])
+        if self.opt['color']:
+            img_LR, img_HR = util.channel_convert(C, self.opt['color'], [img_LR, img_HR])
 
         # BGR to RGB, HWC to CHW, numpy to tensor
         # print('~~~~~~~~img_HR/LR.shape[2]:', img_HR.shape[2], img_LR.shape[2])
-        #if img_HR.shape[2] == 3:
-        #    img_HR = img_HR[:, :, [2, 1, 0]]
-        #    img_LR = img_LR[:, :, [2, 1, 0]]
-        #img_HR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_HR, (2, 0, 1)))).float()
-        #img_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_LR, (2, 0, 1)))).float()
-        img_HR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_HR))).float()
-        img_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_LR))).float()
-        #print('~~~~~~~~img_HR/LR.shape[2]:', img_HR.shape[2], img_LR.shape[2])
-
-        # !! generate residual image (put here for float type)
-        if bGenerateResidual == True:
-            img_HR = img_HR - img_LR
+        if img_HR.shape[2] == 3:
+            img_HR = img_HR[:, :, [2, 1, 0]]
+            img_LR = img_LR[:, :, [2, 1, 0]]
+        img_HR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_HR, (2, 0, 1)))).float()
+        img_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(img_LR, (2, 0, 1)))).float()
 
         if LR_path is None:
             LR_path = HR_path
