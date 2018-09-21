@@ -5,24 +5,40 @@ import argparse
 from collections import OrderedDict
 
 import options.options as option
+
 import utils.util as util
 from data.util import rgb2ycbcr
 from data import create_dataset, create_dataloader
 from models import create_model
 from utils.logger import PrintLogger
 
+from demo.util import show_np8uimg_for_in_gt_out
+
+import numpy as np
 import cv2
 
+import demo.show_options as show_options
+
+print('\n********** config option outside and run python command **********\n')
 
 # options
-print('\n********** config option outside and run python command **********\n')
 parser = argparse.ArgumentParser()
 parser.add_argument('-opt', type=str, required=True, help='Path to options JSON file.')
-opt = option.parse(parser.parse_args().opt, is_train=False)
+parser.add_argument('-showopt', type=str, required=True, help='Path to demo show JSON file.') #demo
 
+opt = option.parse(parser.parse_args().opt, is_train=False)
+opt = option.dict_to_nonedict(opt)
 
 util.mkdirs((path for key, path in opt['path'].items() if not key == 'pretrain_model_G'))
-opt = option.dict_to_nonedict(opt)
+
+#demo--start
+# get configure from option
+show_opt = show_options.parse(parser.parse_args().showopt)
+show_opt = show_options.dict_to_nonedict(show_opt)
+win_x, win_y, win_w, win_h, win_dist, win_layout, win_wait = \
+                    show_options.get_window_show_option(show_opt)
+#demo--end
+
 
 # print to file and std_out simultaneously
 sys.stdout = PrintLogger(opt['path']['log'])
@@ -94,18 +110,16 @@ for test_loader in test_loaders:
             else:
                 print('{:20s} - PSNR: {:.4f} dB; SSIM: {:.4f}.'.format(img_name, psnr, ssim))
 
+            # demo--start
+            # show result
             if True == bShowTestData:
                 lr_img = util.tensor2img_np(visuals['LR'])  # uint8
-                cv2.namedWindow('test_lr_img', 0)
-                cv2.imshow('test_lr_img', lr_img)
-                cv2.moveWindow('test_lr_img', 80, 40)
-                cv2.namedWindow('test_sr_img', 0)
-                cv2.imshow('test_sr_img', sr_img)
-                cv2.moveWindow('test_sr_img', 500, 40)
-                cv2.namedWindow('test_gt_img', 0)
-                cv2.imshow('test_gt_img', gt_img)
-                cv2.moveWindow('test_gt_img', 920, 40)
-                cv2.waitKey(100)
+                show_np8uimg_for_in_gt_out(lr_img, gt_img, sr_img,
+                            win_w = win_w, win_x = win_x, win_y = win_y,
+                            win_dist = win_dist, win_wait = win_wait,
+                            win_layout = win_layout)
+            # demo--end
+
         else:
             print(img_name)
 
@@ -123,3 +137,9 @@ for test_loader in test_loaders:
             ave_ssim_y = sum(test_results['ssim_y']) / len(test_results['ssim_y'])
             print('----Y channel, average PSNR/SSIM----\n\tPSNR_Y: {:.4f} dB; SSIM_Y: {:.4f}\n'\
                 .format(ave_psnr_y, ave_ssim_y))
+
+# demo--start
+# show result
+if True == bShowTestData:
+    cv2.destroyAllWindows()
+# demo--end

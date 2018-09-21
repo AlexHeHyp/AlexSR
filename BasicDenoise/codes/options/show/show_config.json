@@ -1,0 +1,16 @@
+{
+  "name": "DnCNN_Gray_T1"
+
+  , "windowsetting": {
+      "startwindow": {
+        "x": 80
+        , "y": 40
+        , "w": 360
+        , "h": -1
+      }
+    , "distance": 20
+    , "layout": "hori"  //"hori", "vert"
+    , "waittime": 2000  //ms
+  }
+
+}

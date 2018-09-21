@@ -1,0 +1,107 @@
+
+**********180924-114714**********
+Dataset [LRHRDataset - val_set5] is created.
+Number of test images in [val_set5]: 5
+gpu_ids =  [1]
+cuda_a =  True
+loading model for G [../experiments/pretrained_models/SRResNet_bicx4_in3nf64nb16.pth] ...
+---------- Model initialized ------------------
+Number of parameters in G: 1,554,499
+-----------------------------------------------
+Model [SRModel] is created.
+Testing [val_set5]...
+baby                 - PSNR: 32.2971 dB; SSIM: 0.8840; PSNR_Y: 33.7794 dB; SSIM_Y: 0.9050.
+bird                 - PSNR: 32.9140 dB; SSIM: 0.9372; PSNR_Y: 35.0748 dB; SSIM_Y: 0.9522.
+butterfly            - PSNR: 27.2593 dB; SSIM: 0.9098; PSNR_Y: 28.7213 dB; SSIM_Y: 0.9282.
+head                 - PSNR: 29.9454 dB; SSIM: 0.7488; PSNR_Y: 32.9496 dB; SSIM_Y: 0.8148.
+woman                - PSNR: 29.0645 dB; SSIM: 0.9122; PSNR_Y: 30.4446 dB; SSIM_Y: 0.9213.
+----Average PSNR/SSIM results for val_set5----
+	PSNR: 30.2961 dB; SSIM: 0.8784
+
+----Y channel, average PSNR/SSIM----
+	PSNR_Y: 32.1939 dB; SSIM_Y: 0.9043
+
+
+**********180924-115208**********
+
+**********180924-115235**********
+Dataset [LRHRDataset - val_set5] is created.
+Number of test images in [val_set5]: 5
+gpu_ids =  [1]
+cuda_a =  True
+loading model for G [../experiments/pretrained_models/SRResNet_bicx4_in3nf64nb16.pth] ...
+---------- Model initialized ------------------
+Number of parameters in G: 1,554,499
+-----------------------------------------------
+Model [SRModel] is created.
+Testing [val_set5]...
+baby                 - PSNR: 32.2971 dB; SSIM: 0.8840; PSNR_Y: 33.7794 dB; SSIM_Y: 0.9050.
+bird                 - PSNR: 32.9140 dB; SSIM: 0.9372; PSNR_Y: 35.0748 dB; SSIM_Y: 0.9522.
+butterfly            - PSNR: 27.2593 dB; SSIM: 0.9098; PSNR_Y: 28.7213 dB; SSIM_Y: 0.9282.
+head                 - PSNR: 29.9454 dB; SSIM: 0.7488; PSNR_Y: 32.9496 dB; SSIM_Y: 0.8148.
+woman                - PSNR: 29.0645 dB; SSIM: 0.9122; PSNR_Y: 30.4446 dB; SSIM_Y: 0.9213.
+----Average PSNR/SSIM results for val_set5----
+	PSNR: 30.2961 dB; SSIM: 0.8784
+
+----Y channel, average PSNR/SSIM----
+	PSNR_Y: 32.1939 dB; SSIM_Y: 0.9043
+
+
+**********180924-115426**********
+Dataset [LRHRDataset - val_set5] is created.
+Number of test images in [val_set5]: 5
+gpu_ids =  [1]
+cuda_a =  True
+loading model for G [../experiments/pretrained_models/SRResNet_bicx4_in3nf64nb16.pth] ...
+---------- Model initialized ------------------
+Number of parameters in G: 1,554,499
+-----------------------------------------------
+Model [SRModel] is created.
+Testing [val_set5]...
+baby                 - PSNR: 32.2971 dB; SSIM: 0.8840; PSNR_Y: 33.7794 dB; SSIM_Y: 0.9050.
+bird                 - PSNR: 32.9140 dB; SSIM: 0.9372; PSNR_Y: 35.0748 dB; SSIM_Y: 0.9522.
+butterfly            - PSNR: 27.2593 dB; SSIM: 0.9098; PSNR_Y: 28.7213 dB; SSIM_Y: 0.9282.
+head                 - PSNR: 29.9454 dB; SSIM: 0.7488; PSNR_Y: 32.9496 dB; SSIM_Y: 0.8148.
+woman                - PSNR: 29.0645 dB; SSIM: 0.9122; PSNR_Y: 30.4446 dB; SSIM_Y: 0.9213.
+----Average PSNR/SSIM results for val_set5----
+	PSNR: 30.2961 dB; SSIM: 0.8784
+
+----Y channel, average PSNR/SSIM----
+	PSNR_Y: 32.1939 dB; SSIM_Y: 0.9043
+
+
+**********180924-120345**********
+Dataset [LRHRDataset - val_set5] is created.
+Number of test images in [val_set5]: 5
+gpu_ids =  [1]
+cuda_a =  True
+loading model for G [../experiments/pretrained_models/SRResNet_bicx4_in3nf64nb16.pth] ...
+
+**********180924-120454**********
+Dataset [LRHRDataset - val_set5] is created.
+Number of test images in [val_set5]: 5
+gpu_ids =  [1]
+cuda_a =  True
+loading model for G [../experiments/pretrained_models/SRResNet_bicx4_in3nf64nb16.pth] ...
+---------- Model initialized ------------------
+Number of parameters in G: 1,554,499
+-----------------------------------------------
+Model [SRModel] is created.
+Testing [val_set5]...
+baby                 - PSNR: 32.2971 dB; SSIM: 0.8840; PSNR_Y: 33.7794 dB; SSIM_Y: 0.9050.
+bird                 - PSNR: 32.9140 dB; SSIM: 0.9372; PSNR_Y: 35.0748 dB; SSIM_Y: 0.9522.
+butterfly            - PSNR: 27.2593 dB; SSIM: 0.9098; PSNR_Y: 28.7213 dB; SSIM_Y: 0.9282.
+head                 - PSNR: 29.9454 dB; SSIM: 0.7488; PSNR_Y: 32.9496 dB; SSIM_Y: 0.8148.
+woman                - PSNR: 29.0645 dB; SSIM: 0.9122; PSNR_Y: 30.4446 dB; SSIM_Y: 0.9213.
+----Average PSNR/SSIM results for val_set5----
+	PSNR: 30.2961 dB; SSIM: 0.8784
+
+----Y channel, average PSNR/SSIM----
+	PSNR_Y: 32.1939 dB; SSIM_Y: 0.9043
+
+
+**********180930-203456**********
+Dataset [LRHRDataset - val_set5] is created.
+Number of test images in [val_set5]: 5
+gpu_ids =  [1]
+cuda_a =  True

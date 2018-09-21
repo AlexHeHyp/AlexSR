@@ -35,8 +35,10 @@ class Logger(object):
             log_file.write('================ Validation Results ================\n')
         if self.use_tb_logger and 'debug' not in self.exp_name:
             from tensorboard_logger import Logger as TensorboardLogger
-            print("TensorboardLogger")  #!!
-            self.tb_logger = TensorboardLogger('../tb_logger/' + self.exp_name)
+            if opt['path']['root'] is not None:  #add by Alex He
+                self.tb_logger = TensorboardLogger(opt['path']['root'] + '/tb_logger/' + self.exp_name)
+            else:
+                self.tb_logger = TensorboardLogger('../tb_logger/' + self.exp_name)
 
     # def print_format_results(self, mode, rlt):
     #     epoch = rlt.pop('epoch')

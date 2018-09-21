@@ -1,5 +1,5 @@
 {
-  "name": "DnCNNTest_PaperResAdd_BN_l2_s25_d2"
+  "name": "DnCNN_Gray_Test"
   , "model": "sr" // 'sr' | 'srgan'
   , "scale": 1
   , "gpu_ids": [1]
@@ -8,14 +8,14 @@
       "test_0": {
       "name": "Train400-s25"
       , "mode": "LRHR"
-      , "dataroot_HR": "/home/heyp/data/Set12"
-      , "dataroot_LR": "/home/heyp/data/DnCNN/Test/Set12_sigma25"
+      , "dataroot_HR": "/media/sdc/heyp/data/Set12"
+      , "dataroot_LR": "/media/sdc/heyp/data/DnCNN/Test/Set12_sigma25"
     }
   }
 
   , "path": {
-    "root": "/home/heyp/code/BasicDenoise/"
-    , "pretrain_model_G": "/home/heyp/code/BasicDenoise/experiments/pretrained_models/DnCNN_BNResAdd_l2_sig25_p40_s6_normal2_115000_G.pth"
+    "root": "/media/sdc/heyp/experiments/DnCNN_GenerateLR_Test/"
+    , "pretrain_model_G": "./experiments/pretrained_models/DnCNN_Noise2Clear_Gray_Sigma25_70000_G.pth"
   }
 
   , "network_G": {
