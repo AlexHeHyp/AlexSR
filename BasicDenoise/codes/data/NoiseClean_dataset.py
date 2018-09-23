@@ -100,8 +100,9 @@ class NoiseCleanDataset(data.Dataset):
                     img_LR = img_HR + img_Noise  #the value will out [0,1]
                 else: #method 2 to add noise
                     seedV = random.randint(1, 1000000)
+                    var = noise_sigma*noise_sigma
                     img_LR = skimage.util.random_noise(img_HR, mode='gaussian',
-                                  seed=seedV, clip=True, mean=0, var=noise_sigma)
+                               seed=seedV, clip=False, mean=0, var=var) #clip=True
             else:
                 # using matlab imresize
                 img_LR = util.imresize_np(img_HR, 1 / scale, True)

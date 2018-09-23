@@ -1,5 +1,5 @@
 {
-  "name": "DnCNN_GenerateLR_init_e-3_5w_e-4_P80S10" // "debug_"
+  "name": "DnCNN_GenerateLR_init1e-3_5we-4_P40S6_noSaoYanWInit_t2" // "debug_"
   , "use_tb_logger": true
   , "model": "denoise"
   , "scale": 1
@@ -9,7 +9,7 @@
     "train": {
       "name": "Train400"
       , "mode": "NoiseClean"
-      , "dataroot_HR": "/media/sdc/heyp/data/DnCNN/Train/Train400_p80_s10"
+      , "dataroot_HR": "/media/sdc/heyp/data/DnCNN/Train/Train400_p40_s6"
       , "dataroot_LR": null
       ,"subset_file": null
       , "use_shuffle": true
@@ -28,7 +28,7 @@
   }
 
   , "path": {
-    "root": "/media/sdc/heyp/experiments/DnCNN_GenerateLR/"
+    "root": "/media/sdc/heyp/experiments/DnCNN_GenerateLR"  //experiments_root, for save result
     , "pretrain_model_G": null
   }
 
@@ -62,7 +62,7 @@
   }
 
   , "logger": {
-    "print_freq": 50
+    "print_freq": 200
     , "save_checkpoint_freq": 5e3
   }
 }

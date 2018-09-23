@@ -7,9 +7,9 @@
   , "datasets": {
       "test_0": {
       "name": "Train400-s25"
-      , "mode": "LRHR"
+      , "mode": "NoiseClean"
       , "dataroot_HR": "/media/sdc/heyp/data/Set12"
-      , "dataroot_LR": "/media/sdc/heyp/data/DnCNN/Test/Set12_sigma25"
+      , "dataroot_LR": null
     }
   }
 

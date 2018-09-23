@@ -14,11 +14,15 @@ from data import create_dataloader, create_dataset
 from models import create_model
 from utils.logger import Logger, PrintLogger
 
+from demo.util import show_np8uimg_for_in_gt_out  #demo
+
 import numpy as np
 import cv2
 
 def main():
-    bShowTrainData = False  #config by yourself
+    # show train process option, config by yourself
+    bShowTrainData = False
+    win_x,win_y, win_w,win_h, win_dist, win_layout, win_wait = 70,30, 300,-1, 15, 'hori', 500
 
     # options
     print('\n********** config option outside and run python command **********\n')
@@ -124,24 +128,14 @@ def main():
                 lr_img_s = util.tensor2img_np(visuals['LR'])  # uint8
                 sr_img_s = util.tensor2img_np(visuals['SR'])  # uint8
                 gt_img_s = util.tensor2img_np(visuals['HR'])  # uint8
-                lr_img = cv2.resize(np.copy(lr_img_s), (320, 320), interpolation=cv2.INTER_CUBIC)
-                sr_img = cv2.resize(np.copy(sr_img_s), (320, 320), interpolation=cv2.INTER_CUBIC)
-                gt_img = cv2.resize(np.copy(gt_img_s), (320, 320), interpolation=cv2.INTER_CUBIC)
 
-                cv2.namedWindow('in_t', 1)
-                cv2.moveWindow('in_t', 80, 20)
-                cv2.imshow('in_t', lr_img)
-                cv2.namedWindow('gt_t', 1)
-                cv2.moveWindow('gt_t', 500, 20)
-                cv2.imshow('gt_t', gt_img)
-                cv2.namedWindow('out_t', 1)
-                cv2.moveWindow('out_t', 920, 20)
-                cv2.imshow('out_t', sr_img)
-                cv2.waitKey(200)
+                show_np8uimg_for_in_gt_out(lr_img_s, gt_img_s, sr_img_s,
+                         win_w=win_w, win_x=win_x, win_y=win_y,
+                         win_dist=win_dist, win_wait=win_wait, win_layout=win_layout)
 
             # validation
             if current_step % opt['train']['val_freq'] == 0:
-                print('---------- validation -------------')
+                print('------ validation(%s) ------' %(opt['name']))
                 start_time = time.time()
 
                 avg_psnr = 0.0
@@ -178,26 +172,15 @@ def main():
                         break
 
                     #show validation
-                    if True == bShowTrainData and idx < 21:  # 2:
+                    if True == bShowTrainData and idx < 2:  # 2:
                         lr_img = util.tensor2img_np(visuals['LR'])  # uint8
 
                         # show
-                        lr_img = cv2.resize(np.copy(lr_img), (320, 320), interpolation=cv2.INTER_CUBIC)
-                        gt_img = cv2.resize(np.copy(gt_img), (320, 320), interpolation=cv2.INTER_CUBIC)
-                        sr_img = cv2.resize(np.copy(sr_img), (320, 320), interpolation=cv2.INTER_CUBIC)
-
-                        if 1 == idx:
-                            cv2.destroyAllWindows()
-                        cv2.namedWindow('in_v', 1)
-                        cv2.moveWindow('in_v', 80, 20)
-                        cv2.imshow('in_v', lr_img)
-                        cv2.namedWindow('gt_v', 1)
-                        cv2.moveWindow('gt_v', 500, 20)
-                        cv2.imshow('gt_v', gt_img)
-                        cv2.namedWindow('out_v', 1)
-                        cv2.moveWindow('out_v', 920, 20)
-                        cv2.imshow('out_v', sr_img)
-                        cv2.waitKey(500)
+                        #if 1 == idx:
+                        #    cv2.destroyAllWindows()
+                        show_np8uimg_for_in_gt_out(lr_img, gt_img, sr_img,
+                             win_w=win_w, win_x=win_x, win_y=win_y,
+                             win_dist=win_dist, win_wait=win_wait, win_layout=win_layout)
 
                 avg_psnr = avg_psnr / idx
                 time_elapsed = time.time() - start_time

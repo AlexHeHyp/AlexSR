@@ -12,7 +12,7 @@ def main():
     step = 20  #40
     augmentation = False  #True
 
-    GT_dir = '/home/heyp/data/DnCNN/Train/Train400_sigma25'
+    GT_dir = '/media/sdc/heyp/data/DIV2K_train_HR'
 
     #need create save_GT_dir at first(before run)
     save_GT_dir = '/home/heyp/data/DnCNN/Train/Train400_sigma25_p80_s20'

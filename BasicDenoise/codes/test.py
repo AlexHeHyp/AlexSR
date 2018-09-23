@@ -12,7 +12,7 @@ from data import create_dataset, create_dataloader
 from models import create_model
 from utils.logger import PrintLogger
 
-from demo.util import show_np8uimg_for_in_gt_out
+from demo.util import show_np8uimg_for_in_gt_out  #demo
 
 import numpy as np
 import cv2

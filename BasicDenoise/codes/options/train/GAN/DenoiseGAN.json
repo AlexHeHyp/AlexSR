@@ -9,8 +9,8 @@
     "train": {
       "name": "DIV2K"
       , "mode": "LRHR"
-      , "dataroot_HR": "/home/heyp/data/DenoiseGAN/DIV2K_train_HR_p480_s240"
-      , "dataroot_LR": "/home/heyp/data/DenoiseGAN/DIV2K_train_HR_sigma25_p480_s240"
+      , "dataroot_HR": "/media/sdc/heyp/data/DenoiseGAN/DIV2K_train_HR_p480_s240"
+      , "dataroot_LR": "/media/sdc/heyp/data/DenoiseGAN/DIV2K_train_HR_sigma25_p480_s240"
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
@@ -22,14 +22,14 @@
     , "val": {
       "name": "Set5"
       , "mode": "LRHR"
-      , "dataroot_HR": "/home/heyp/data/Set5"
-      , "dataroot_LR": "/home/heyp/data/DenoiseGAN/Set5_sigma25"
+      , "dataroot_HR": "/media/sdc/heyp/data/Set5"
+      , "dataroot_LR": "/media/sdc/heyp/data/DenoiseGAN/Set5_sigma25"
     }
   }
 
   , "path": {
-    "root": "/home/heyp/code/BasicDenoise"
-    , "pretrain_model_G": "/home/heyp/code/BasicDenoise/experiments/pretrained_models/DenoiseResNet_3C_500000_G.pth"
+    "root": "/media/sdc/heyp/experiments/DnCNN_GenerateLR/"
+    , "pretrain_model_G": "/media/sdc/heyp/experiments/DnCNN_GenerateLR/experiments/pretrained_models/DenoiseResNet_3C_500000_G.pth"
   }
 
   , "network_G": {

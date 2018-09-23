@@ -1,5 +1,5 @@
 {
-  "name": "DenoiseResNet" // "debug_"
+  "name": "debug_DenoiseResNet3C_init_e-4_5w10w20w30WDiv2_GenerateLR_P480S246-t1" // "debug_"
   , "use_tb_logger": true
   , "model":"sr"
   , "scale": 1
@@ -8,9 +8,9 @@
   , "datasets": {
     "train": {
       "name": "DIV2K"
-      , "mode": "LRHR"
-      , "dataroot_HR": "/home/heyp/data/DenoiseGAN/DIV2K_train_HR_p480_s240"
-      , "dataroot_LR": "/home/heyp/data/DenoiseGAN/DIV2K_train_HR_sigma25_p480_s240"
+      , "mode": "NoiseClean"
+      , "dataroot_HR": "/media/sdc/heyp/data/DenoiseGAN/DIV2K_train_HR_p480_s240"
+      , "dataroot_LR": null
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
@@ -21,14 +21,14 @@
     }
     , "val": {
       "name": "Set5"
-      , "mode": "LRHR"
-      , "dataroot_HR": "/home/heyp/data/Set5"
-      , "dataroot_LR": "/home/heyp/data/DenoiseGAN/Set5_sigma25"
+      , "mode": "NoiseClean"
+      , "dataroot_HR": "/media/sdc/heyp/data/Set5"
+      , "dataroot_LR": null
     }
   }
 
   , "path": {
-    "root":  "/home/heyp/code/BasicDenoise/"
+    "root":  "/media/sdc/heyp/experiments/DenoiseResetNet3C_GenerateLR"
     , "pretrain_model_G": null
   }
 
@@ -54,7 +54,7 @@
 
     , "pixel_criterion": "l1"
     , "pixel_weight": 1.0
-    , "val_freq": 5e3
+    , "val_freq": 1e3
   }
 
   , "logger": {

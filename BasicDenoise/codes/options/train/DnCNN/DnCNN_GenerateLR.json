@@ -62,7 +62,7 @@
   }
 
   , "logger": {
-    "print_freq": 50
+    "print_freq": 200
     , "save_checkpoint_freq": 5e3
   }
 }

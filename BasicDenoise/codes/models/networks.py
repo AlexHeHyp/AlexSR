@@ -26,7 +26,7 @@ def weights_init_normal(m, std=0.02):
         init.normal(m.weight.data, 1.0, std)
         init.constant(m.bias.data, 0.0)
 
-def weights_init_kaiming(m, scale=1, bDnCNN=False):
+def weights_init_kaiming(m, scale=1, bGrayDnCNN=False):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
         # print('initializing [%s] ...' % classname)
@@ -40,7 +40,7 @@ def weights_init_kaiming(m, scale=1, bDnCNN=False):
         if m.bias is not None:
             m.bias.data.zero_()
     elif classname.find('BatchNorm2d') != -1:
-        if False == bDnCNN:
+        if False == bGrayDnCNN:
             #Xin Tao code
             init.constant_(m.weight.data, 1.0)
         else:
@@ -64,14 +64,15 @@ def weights_init_orthogonal(m):
         init.normal(m.weight.data, 1.0, 0.02)
         init.constant(m.bias.data, 0.0)
 
-def init_weights(net, init_type='kaiming', scale=1, std=0.02, bDnCNN=False):
+def init_weights(net, init_type='kaiming', scale=1, std=0.02, bGrayDnCNN=False):
     # scale for 'kaiming', std for 'normal'.
     print('initialization method [%s]' % init_type)
     if init_type == 'normal':
         weights_init_normal_ = functools.partial(weights_init_normal, std=std)
         net.apply(weights_init_normal_)
     elif init_type == 'kaiming':
-        weights_init_kaiming_ = functools.partial(weights_init_kaiming, scale=scale, bDnCNN=bDnCNN)
+        weights_init_kaiming_ = functools.partial(weights_init_kaiming,
+                                                  scale=scale, bGrayDnCNN=bGrayDnCNN)
         net.apply(weights_init_kaiming_)
     elif init_type == 'orthogonal':
         net.apply(weights_init_orthogonal)
@@ -116,10 +117,11 @@ def define_G(opt):
         raise NotImplementedError('Generator model [{:s}] not recognized'.format(which_model))
 
     if opt['is_train']:
-        if which_model == 'dn_cnn':
-            init_weights(netG, init_type='kaiming', scale=1, bDnCNN=True)
+        if which_model == 'dn_cnn' and opt['in_nc'] == 1:
+            #init_weights(netG, init_type='kaiming', scale=1, bGrayDnCNN=True)
+            init_weights(netG, init_type='kaiming', scale=0.1, bGrayDnCNN=False)
         else:
-            init_weights(netG, init_type='kaiming', scale=0.1, bDnCNN=False)
+            init_weights(netG, init_type='kaiming', scale=0.1, bGrayDnCNN=False)
 
     print("gpu_ids = ", gpu_ids)
     if gpu_ids:
